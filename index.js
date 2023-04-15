@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
+const rateLimit = require('express-rate-limit')
 require('dotenv').config()
 
 const routerModels = require('./routes/models.router')
@@ -32,6 +33,18 @@ if (process.env.NODE_ENV === 'production') {
   */
   app.use(helmet({crossOriginResourcePolicy: false}))
     
+/**
+ *  Rate Limiter for this API - ONLY Server
+ */
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+app.use(limiter)
 } else {
   app.use(cors())
 }
@@ -58,6 +71,10 @@ Routes
 routerModels(app)
 routerErrorHandler(app)
 
-app.listen(PORT, () => {
-  console.log(`Server on PORT: ${PORT}`)
-})
+if (process.env.NODE_ENV != 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server on PORT: ${PORT}`)
+  })
+}
+
+module.exports = {app}
