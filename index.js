@@ -26,25 +26,25 @@ const corsOptions = {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(cors())
+  app.use(cors());
   /* Set security HTTP headers */
   /* For Error ERR_BLOCKED_BY_RESPONSE.NotSameOrigin 200 
        https://stackoverflow.com/questions/70752770/helmet-express-err-blocked-by-response-notsameorigin-200
   */
-  app.use(helmet({crossOriginResourcePolicy: false}))
-    
-/**
- *  Rate Limiter for this API - ONLY Server
- */
+  app.use(helmet({ crossOriginResourcePolicy: false }));
 
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
+  /**
+   *  Rate Limiter for this API - ONLY Server
+   */
 
-app.use(limiter)
+  const limiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  });
+
+  app.use(limiter);
 } else {
   app.use(cors())
 }
